@@ -1461,12 +1461,12 @@ jobs:
                     improvement = ((treatment_rate - control_rate) / control_rate) * 100
                     
                     segment_results[segment] = {
-                        'sample_size': len(segment_data),
-                        'control_conversion_rate': control_rate,
-                        'treatment_conversion_rate': treatment_rate,
-                        'improvement_percentage': improvement,
-                        'statistical_significance': len(segment_data) > 100 and abs(improvement) > 1.0,
-                        'business_priority': 'high' if segment in ['premium', 'high_income'] else 'medium',
+                        'sample_size': int(len(segment_data)),
+                        'control_conversion_rate': float(control_rate),
+                        'treatment_conversion_rate': float(treatment_rate),
+                        'improvement_percentage': float(improvement),
+                        'statistical_significance': bool(len(segment_data) > 100 and abs(improvement) > 1.0),
+                        'business_priority': str('high' if segment in ['premium', 'high_income'] else 'medium'),
                         'default_rate': float(base_default_rate)
                     }
                     
