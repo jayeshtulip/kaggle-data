@@ -1,0 +1,14 @@
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: loan-default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp2-immediate
+  resources:
+    requests:
+      storage: 20Gi
+EOF

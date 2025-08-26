@@ -1,0 +1,25 @@
+﻿apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: grafana-pvc
+  namespace: loan-default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp2-immediate
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-pvc
+  namespace: loan-default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp2-immediate
+  resources:
+    requests:
+      storage: 20Gi
