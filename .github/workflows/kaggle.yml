@@ -1282,6 +1282,13 @@ jobs:
         pip install boto3
         pip install pandas numpy mlflow
         pip install dvc[s3]
+    
+    - name: "Configure AWS for MLflow"
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
         
     - name: "ROI Calculator Engine"
       id: roi
@@ -1418,7 +1425,7 @@ jobs:
         from datetime import datetime
         
         print('Running Segment Analysis Engine...')
-        
+               
         try:
             df = pd.read_csv('data/current_ab_data.csv')
             
