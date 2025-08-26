@@ -89,9 +89,10 @@ jobs:
   runs-on: ubuntu-latest
   outputs:
     dataset_prepared: ${{ steps.prepare.outputs.dataset_prepared }}
-    #feature_count: ${{ steps.prepare.outputs.feature_count }}
-    #default_rate: ${{ steps.prepare.outputs.default_rate }}
-    steps:
+    # Uncommented the following outputs since they're referenced later
+    feature_count: ${{ steps.prepare.outputs.feature_count }}
+    default_rate: ${{ steps.prepare.outputs.default_rate }}
+  steps:
     - name: "Checkout Repository"
       uses: actions/checkout@v4
       
