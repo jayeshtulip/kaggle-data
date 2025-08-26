@@ -1,4 +1,4 @@
- kaggle-dataset-preparation:
+kaggle-dataset-preparation:
     runs-on: ubuntu-latest
     outputs:
       dataset_prepared: ${{ steps.prepare.outputs.dataset_prepared }}
@@ -184,7 +184,7 @@
   # PHASE 1: VALIDATE EXPERIMENT SETUP
   # =====================================
   
-  validate-experiment-setup:
+validate-experiment-setup:
     needs: kaggle-dataset-preparation
     runs-on: ubuntu-latest
     if: needs.kaggle-dataset-preparation.outputs.dataset_prepared == 'true'
@@ -332,7 +332,7 @@
   # PHASE 2: DRIFT DETECTION ANALYSIS
   # =====================================
   
-  drift-detection-analysis:
+drift-detection-analysis:
     needs: [validate-experiment-setup, kaggle-dataset-preparation]
     runs-on: ubuntu-latest
     if: needs.validate-experiment-setup.outputs.should_continue == 'true'
@@ -530,7 +530,7 @@
   # PHASE 3: GRAFANA A/B DECISION ENGINE
   # =====================================
   
-  grafana-ab-decision-engine:
+grafana-ab-decision-engine:
     needs: [validate-experiment-setup, drift-detection-analysis]
     runs-on: ubuntu-latest
     outputs:
@@ -667,7 +667,7 @@
   # PHASE 4: ANALYZE A/B TEST RESULTS
   # =====================================
   
-  analyze-ab-test-results:
+analyze-ab-test-results:
     needs: [validate-experiment-setup, drift-detection-analysis, grafana-ab-decision-engine]
     runs-on: ubuntu-latest
     outputs:
@@ -854,7 +854,7 @@
   # PHASE 5: EARLY STOPPING ANALYSIS
   # =====================================
   
-  early-stopping-analysis:
+early-stopping-analysis:
     needs: [analyze-ab-test-results, validate-experiment-setup]
     runs-on: ubuntu-latest
     if: github.event.inputs.early_stopping_enabled != 'false'
@@ -965,7 +965,7 @@
   # PHASE 6: WINNER SELECTION ENGINE
   # =====================================
   
-  winner-selection-engine:
+winner-selection-engine:
     needs: [analyze-ab-test-results, early-stopping-analysis, drift-detection-analysis]
     runs-on: ubuntu-latest
     outputs:
@@ -1155,7 +1155,7 @@
   # PHASE 7: BUSINESS IMPACT ANALYZER
   # =====================================
   
-  business-impact-analyzer:
+business-impact-analyzer:
     needs: [winner-selection-engine, analyze-ab-test-results]
     runs-on: ubuntu-latest
     outputs:
@@ -1446,7 +1446,7 @@
   # PHASE 8: TRAIN CHAMPION MODEL
   # =====================================
   
-  train-champion-model:
+train-champion-model:
     needs: [business-impact-analyzer, winner-selection-engine, analyze-ab-test-results]
     if: needs.winner-selection-engine.outputs.final_winning_model != 'no_winner'
     runs-on: ubuntu-latest
@@ -1685,7 +1685,7 @@
   # PHASE 9: INTELLIGENT MODEL PROMOTION
   # =====================================
   
-  intelligent-model-promotion:
+intelligent-model-promotion:
     needs: [train-champion-model, winner-selection-engine]
     if: needs.winner-selection-engine.outputs.deployment_recommendation != 'continue_testing'
     runs-on: ubuntu-latest
@@ -1819,7 +1819,7 @@
   # PHASE 10: PERFORMANCE MONITORING
   # =====================================
   
-  performance-monitoring-and-retraining:
+performance-monitoring-and-retraining:
     needs: [intelligent-model-promotion]
     runs-on: ubuntu-latest
     if: always()
@@ -1963,7 +1963,7 @@
   # PHASE 11: COMPREHENSIVE REPORTING
   # =====================================
   
-  comprehensive-reporting:
+comprehensive-reporting:
     needs: [performance-monitoring-and-retraining, intelligent-model-promotion, business-impact-analyzer, winner-selection-engine]
     runs-on: ubuntu-latest
     if: always()
@@ -2045,7 +2045,7 @@
   # PHASE 12: GRAFANA INTELLIGENT DEPLOYMENT
   # =====================================
   
-  grafana-intelligent-deployment:
+grafana-intelligent-deployment:
     needs: [grafana-ab-decision-engine, train-champion-model]
     runs-on: ubuntu-latest
     if: needs.grafana-ab-decision-engine.outputs.grafana_decision != 'continue_testing'
@@ -2144,7 +2144,7 @@
   # PHASE 13: GRAFANA TRIGGERED RETRAINING
   # =====================================
   
-  grafana-triggered-retraining:
+grafana-triggered-retraining:
     needs: [grafana-ab-decision-engine, performance-monitoring-and-retraining]
     runs-on: ubuntu-latest
     if: needs.grafana-ab-decision-engine.outputs.grafana_decision == 'deploy_treatment' || needs.performance-monitoring-and-retraining.outputs.retraining_triggered == 'true'
@@ -2230,7 +2230,7 @@
   # PHASE 14: PIPELINE MAINTENANCE
   # =====================================
 
-  pipeline-maintenance:
+pipeline-maintenance:
     runs-on: ubuntu-latest
     if: github.event.inputs.reason == 'maintenance' || github.event_name == 'schedule'
     steps:
@@ -2248,7 +2248,7 @@
   # PHASE 15: EMERGENCY ROLLBACK
   # =====================================
 
-  emergency-rollback:
+emergency-rollback:
     runs-on: ubuntu-latest
     if: github.event.inputs.reason == 'emergency_rollback'
     steps:
@@ -2263,7 +2263,7 @@
   # PHASE 16: PIPELINE SUCCESS NOTIFICATION (ENHANCED)
   # =====================================
   
-  pipeline-success-notification:
+pipeline-success-notification:
     needs: [comprehensive-reporting, grafana-intelligent-deployment, grafana-triggered-retraining]
     runs-on: ubuntu-latest
     if: always()
