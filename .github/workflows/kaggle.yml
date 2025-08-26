@@ -788,7 +788,7 @@ jobs:
     
     - name: "Install Dependencies"
       run: |
-        pip install numpy scipy pandas mlflow statsmodels
+        pip install numpy scipy pandas mlflow statsmodels boto3
     
     - name: "Enhanced A/B Testing Analysis"
       id: analysis
@@ -929,7 +929,13 @@ jobs:
             with open(analysis_file, 'w') as f:
                 # Use default parameter to handle any remaining serialization issues
                 json.dump(analysis_report, f, indent=2, default=str)
-            mlflow.log_artifact(analysis_file, 'ab_analysis')
+            # Safe MLflow artifact logging
+            try:
+                mlflow.log_artifact(analysis_file, 'ab_analysis')
+                print("Analysis artifact logged to MLflow successfully")
+            except Exception as e:
+                print(f"Warning: Failed to log artifact to MLflow: {e}")
+                # Continue execution even if artifact logging fails
             
             # Output results
             with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
