@@ -86,11 +86,11 @@ jobs:
   # =====================================
   
   kaggle-dataset-preparation:
-    runs-on: ubuntu-latest
-    outputs:
-      dataset_prepared: ${{ steps.prepare.outputs.dataset_prepared }}
-      dataset_info: ${{ steps.prepare.outputs.dataset_info }}
-      feature_mapping: ${{ steps.prepare.outputs.feature_mapping }}
+  runs-on: ubuntu-latest
+  outputs:
+    dataset_prepared: ${{ steps.prepare.outputs.dataset_prepared }}
+    feature_count: ${{ steps.prepare.outputs.feature_count }}
+    default_rate: ${{ steps.prepare.outputs.default_rate }}
     steps:
     - name: "Checkout Repository"
       uses: actions/checkout@v4
@@ -254,10 +254,11 @@ jobs:
         print(f'Dataset processing completed! Shape: {df_processed.shape}, Default rate: {final_info["default_rate"]:.3%}')
         
         # Output for next jobs
+        # Output for next jobs (simplified to avoid size limits)
         with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
             f.write('dataset_prepared=true\n')
-            f.write(f'dataset_info={json.dumps(final_info)}\n')
-            f.write(f'feature_mapping={json.dumps(column_mappings)}\n')
+            f.write(f'feature_count={len(final_info["processed_columns"]) - 1}\n')
+            f.write(f'default_rate={final_info["default_rate"]:.4f}\n')
         EOF
     
     - name: "Upload Processed Dataset Artifacts"
