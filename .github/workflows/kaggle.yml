@@ -89,8 +89,8 @@ jobs:
   runs-on: ubuntu-latest
   outputs:
     dataset_prepared: ${{ steps.prepare.outputs.dataset_prepared }}
-    feature_count: ${{ steps.prepare.outputs.feature_count }}
-    default_rate: ${{ steps.prepare.outputs.default_rate }}
+    #feature_count: ${{ steps.prepare.outputs.feature_count }}
+    #default_rate: ${{ steps.prepare.outputs.default_rate }}
     steps:
     - name: "Checkout Repository"
       uses: actions/checkout@v4
@@ -159,6 +159,7 @@ jobs:
         df_raw = pd.read_csv(dataset_path)
         print(f'Loaded dataset: {df_raw.shape}')
         
+        # Feature mapping for standardization
         # Feature mapping for standardization
         column_mappings = {
             'loan_amnt': 'loan_amount',
