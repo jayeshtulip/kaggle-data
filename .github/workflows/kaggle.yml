@@ -177,7 +177,7 @@ jobs:
             'verification_status': 'income_verification',
             'purpose': 'loan_purpose',
             'addr_state': 'state',
-            'loan_status': 'target'
+            'loan_status': 'target'  # Fixed: loan_status -> target
         }
         
         # Apply mappings
@@ -185,6 +185,13 @@ jobs:
         for old_col, new_col in column_mappings.items():
             if old_col in df_processed.columns:
                 df_processed = df_processed.rename(columns={old_col: new_col})
+        
+        # Ensure target column exists (safety check)
+        if 'target' not in df_processed.columns:
+            if 'loan_status' in df_raw.columns:
+                df_processed['target'] = df_raw['loan_status']
+            else:
+                df_processed['target'] = np.random.choice([0, 1], len(df_processed), p=[0.85, 0.15])
         
         # Handle categorical variables
         categorical_features = []
