@@ -1,4 +1,4 @@
-  kaggle-dataset-preparation:
+kaggle-dataset-preparation:
     runs-on: ubuntu-latest
     outputs:
       dataset_prepared: ${{ steps.prepare.outputs.dataset_prepared }}
