@@ -1279,7 +1279,9 @@ jobs:
         
     - name: "Install Dependencies"
       run: |
+        pip install boto3
         pip install pandas numpy mlflow
+        pip install dvc[s3]
         
     - name: "ROI Calculator Engine"
       id: roi
