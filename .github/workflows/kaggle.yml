@@ -904,29 +904,31 @@ jobs:
             print(f'   Statistical Significance: {is_significant}')
             
             # Save analysis report
+            # Save analysis report - FIXED VERSION
             analysis_report = {
                 'timestamp': datetime.now().isoformat(),
                 'sample_sizes': {'control': control_sample_size, 'treatment': treatment_sample_size, 'total': total_sample_size},
-                'conversion_rates': {'control': p1, 'treatment': p2, 'difference': p2 - p1},
+                'conversion_rates': {'control': float(p1), 'treatment': float(p2), 'difference': float(p2 - p1)},
                 'statistical_tests': {
                     'z_statistic': float(z_stat),
                     'p_value': float(p_value),
                     'effect_size': float(effect_size),
                     'statistical_power': float(power),
-                    'is_significant': is_significant
+                    'is_significant': bool(is_significant)  # Explicitly convert to bool
                 },
                 'decisions': {
-                    'winning_model': winning_model,
-                    'should_retrain': should_retrain,
-                    'confidence_level': confidence_level,
-                    'performance_difference_pct': performance_difference
+                    'winning_model': str(winning_model),
+                    'should_retrain': bool(should_retrain),  # Explicitly convert to bool
+                    'confidence_level': float(confidence_level),
+                    'performance_difference_pct': float(performance_difference)
                 }
             }
             
             os.makedirs('experiments/ab_analysis', exist_ok=True)
             analysis_file = f'experiments/ab_analysis/analysis_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
             with open(analysis_file, 'w') as f:
-                json.dump(analysis_report, f, indent=2)
+                # Use default parameter to handle any remaining serialization issues
+                json.dump(analysis_report, f, indent=2, default=str)
             mlflow.log_artifact(analysis_file, 'ab_analysis')
             
             # Output results
