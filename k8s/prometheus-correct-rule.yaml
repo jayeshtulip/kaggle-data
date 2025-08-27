@@ -1,4 +1,4 @@
-apiVersion: v1
+﻿apiVersion: v1
 kind: ConfigMap
 metadata:
   name: prometheus-ab-alert-rules
@@ -10,14 +10,12 @@ data:
       interval: 30s
       rules:
       - alert: ModelPerformanceBelow65
-        expr: up{job="loan-model-metrics"} < 0.65
+        expr: loan_model_accuracy < 0.95
         for: 10s
         labels:
           severity: critical
-          alert_type: performance_degradation
           trigger_github: "true"
         annotations:
-          summary: "Test: Model performance threshold triggered"
+          summary: "Model accuracy dropped below 95%"
           github_repo: "jayeshtulip/kaggle-data"
-          github_workflow_file: "emergency-retrain.yml"
-          github_ref: "main"
+          github_workflow_file: "kaggle.yml"
