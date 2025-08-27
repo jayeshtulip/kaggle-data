@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhook-receiver
+  namespace: loan-default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webhook-receiver
+  template:
+    metadata:
+      labels:
+        app: webhook-receiver
+    spec:
+      containers:
+      - name: webhook
+        image: python:3.9-slim
+        command: ["sh", "-c"]
+        args:
+        - |
+          pip install flask requests &&
+          cat > /tmp/webhook.py << 'PYEOF'
+          from flask import Flask, request, jsonify
+          app = Flask(__name__)
+          
+          @app.route('/prometheus', methods=['POST'])
+          def prometheus_webhook():
+              try:
+                  alert_data = request.json
+                  print(f'Alert received: {alert_data}')
+                  return jsonify({'status': 'received'}), 200
+              except Exception as e:
+                  return jsonify({'error': str(e)}), 500
+          
+          @app.route('/health', methods=['GET'])
+          def health():
+              return jsonify({'status': 'healthy'}), 200
+          
+          app.run(host='0.0.0.0', port=8080, debug=False)
+          PYEOF
+          python /tmp/webhook.py
+        ports:
+        - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhook-receiver
+  namespace: loan-default
+spec:
+  selector:
+    app: webhook-receiver
+  ports:
+  - port: 8080
+    targetPort: 8080

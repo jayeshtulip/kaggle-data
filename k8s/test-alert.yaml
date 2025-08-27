@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-test-alert
+  namespace: loan-default
+data:
+  test-alert.yml: |
+    groups:
+    - name: test_github_trigger
+      rules:
+      - alert: TestGitHubWebhook
+        expr: up{job="loan-model-metrics"} == 1
+        for: 10s
+        labels:
+          severity: critical
+          trigger_github: "true"
+        annotations:
+          summary: "Test alert for GitHub Actions pipeline"
+          github_repo: "your-username/your-repo"
+          github_workflow_file: "test-workflow.yml"

@@ -70,15 +70,21 @@ on:
 env:
   AWS_REGION: ap-south-1
   ECR_REGISTRY: 365021531163.dkr.ecr.ap-south-1.amazonaws.com
-  # ESSENTIAL SERVICES ONLY - OTHERS WILL USE SIMULATION
+  # REAL A/B TESTING ENDPOINTS
+  CONTROL_MODEL_URL: http://a98b76d020b82445582a6c766948ffef-8321353a4db0e73f.elb.ap-south-1.amazonaws.com
+  TREATMENT_MODEL_URL: http://a23d93af5d1294f9aa0fdde42b961621-03820cfd5c1fdce7.elb.ap-south-1.amazonaws.com
+  # MONITORING INFRASTRUCTURE  
   PROMETHEUS_URL: a218196e2a60640ed91f878d881b1411-696778536.ap-south-1.elb.amazonaws.com:9090
   GRAFANA_URL: a184404cbef8f4ac19df4b93846afebc-289213995.ap-south-1.elb.amazonaws.com:3000
   MLFLOW_TRACKING_URI: http://ad94bec9b84c7498a869d8e30f0f2145-121018640.ap-south-1.elb.amazonaws.com:5000
+  # ALERTING ENDPOINTS
+  ALERTMANAGER_URL: a17c0255ffa8647239b4bbd8cdda71a4-0cee5bf9e9143e98.elb.ap-south-1.amazonaws.com/alertmanager
+  WEBHOOK_RECEIVER_URL: a17c0255ffa8647239b4bbd8cdda71a4-0cee5bf9e9143e98.elb.ap-south-1.amazonaws.com/webhook
+  # EXPERIMENT CONFIGURATION
   MLFLOW_EXPERIMENT_NAME: enhanced-ab-testing-loan-default-kaggle
   DVC_REMOTE_S3: s3://loan-mlops-dvc-bucket/ab-testing-kaggle-data
   EKS_CLUSTER_NAME: loan-eks-simple
   K8S_NAMESPACE: loan-default
-  PROD_API_URL: aff9aee729ad040908b5641f4ebda419-1266006591.ap-south-1.elb.amazonaws.com
   KAGGLE_DATASET_PATH: ${{ github.event.inputs.kaggle_dataset_path || 'data/loan_default_dataset.csv' }}
 jobs:
   # =====================================

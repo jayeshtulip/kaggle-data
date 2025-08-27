@@ -1,0 +1,84 @@
+# File: prometheus-ab-scrape-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-ab-scrape-config
+  namespace: loan-default
+data:
+  additional-scrape-configs.yml: |
+    # A/B Model Scrape Targets
+    - job_name: 'loan-control-model'
+      static_configs:
+        - targets: ['a98b76d020b82445582a6c766948ffef-8321353a4db0e73f.elb.ap-south-1.amazonaws.com:80']
+      metrics_path: '/metrics'
+      scrape_interval: 30s
+      scrape_timeout: 10s
+      
+    - job_name: 'loan-treatment-model'
+      static_configs:
+        - targets: ['a23d93af5d1294f9aa0fdde42b961621-03820cfd5c1fdce7.elb.ap-south-1.amazonaws.com:80']
+      metrics_path: '/metrics'
+      scrape_interval: 30s
+      scrape_timeout: 10s
+      
+    # Internal services
+    - job_name: 'webhook-receiver'
+      static_configs:
+        - targets: ['webhook-receiver:8080']
+      metrics_path: '/metrics'
+      
+    - job_name: 'ab-metrics-collector'
+      static_configs:
+        - targets: ['ab-metrics-collector:9090']
+      metrics_path: '/metrics'
+
+---
+# Prometheus Alert Rules for A/B Testing
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-ab-alert-rules
+  namespace: loan-default
+data:
+  ab-testing-rules.yml: |
+    groups:
+    - name: ab_testing_performance
+      interval: 30s
+      rules:
+      - alert: ControlModelAccuracyDrop
+        expr: control_model_accuracy < 0.82
+        for: 5m
+        labels:
+          severity: critical
+          model_variant: control
+          alert_type: performance_degradation
+        annotations:
+          summary: "Control model accuracy dropped below threshold"
+          
+      - alert: TreatmentModelAccuracyDrop
+        expr: treatment_model_accuracy < 0.82
+        for: 5m
+        labels:
+          severity: critical
+          model_variant: treatment
+          alert_type: performance_degradation
+        annotations:
+          summary: "Treatment model accuracy dropped below threshold"
+          
+      - alert: ABTestStatisticalSignificance
+        expr: abs(treatment_conversion_rate - control_conversion_rate) > 0.02
+        for: 10m
+        labels:
+          severity: info
+          alert_type: statistical_significance
+        annotations:
+          summary: "A/B test shows statistical significance"
+          
+      - alert: ModelDriftDetected
+        expr: model_drift_score > 0.15
+        for: 5m
+        labels:
+          severity: warning
+          alert_type: drift_alert
+        annotations:
+          summary: "Data drift detected in A/B models"

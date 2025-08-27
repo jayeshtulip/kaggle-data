@@ -1,0 +1,78 @@
+# alertmanager-webhook-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: loan-default
+data:
+  alertmanager.yml: |
+    global:
+      resolve_timeout: 5m
+      
+    # Alert routing configuration
+    route:
+      group_by: ['alertname', 'severity']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 1h
+      receiver: 'default-webhook'
+      routes:
+      
+      # GitHub Actions Trigger Route - High Priority
+      - match:
+          trigger_github: "true"
+        receiver: 'github-actions-webhook'
+        group_wait: 5s
+        repeat_interval: 30m
+        
+      # Critical alerts route
+      - match:
+          severity: critical
+        receiver: 'github-actions-webhook'
+        group_wait: 5s
+        
+      # Performance degradation alerts
+      - match:
+          alert_type: performance_degradation
+        receiver: 'github-actions-webhook'
+        group_wait: 0s
+        repeat_interval: 15m
+
+    # Webhook receivers configuration
+    receivers:
+    
+    # Default webhook receiver
+    - name: 'default-webhook'
+      webhook_configs:
+      - url: 'http://webhook-receiver:8080/prometheus'
+        send_resolved: true
+        http_config:
+          headers:
+            'Content-Type': 'application/json'
+        
+    # GitHub Actions specific webhook
+    - name: 'github-actions-webhook'
+      webhook_configs:
+      - url: 'http://webhook-receiver:8080/prometheus'
+        send_resolved: true
+        http_config:
+          headers:
+            'Content-Type': 'application/json'
+            'X-GitHub-Trigger': 'true'
+        title: 'GitHub Actions Alert: {{ .GroupLabels.alertname }}'
+        text: |
+          {{ range .Alerts }}
+          Alert: {{ .Annotations.summary }}
+          Description: {{ .Annotations.description }}
+          GitHub Repo: {{ .Annotations.github_repo }}
+          Workflow: {{ .Annotations.github_workflow_file }}
+          Severity: {{ .Labels.severity }}
+          {{ end }}
+
+    # Inhibition rules - prevent spam
+    inhibit_rules:
+    - source_match:
+        severity: 'critical'
+      target_match:
+        severity: 'warning'
+      equal: ['alertname', 'instance']

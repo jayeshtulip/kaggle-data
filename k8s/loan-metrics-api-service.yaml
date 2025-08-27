@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: loan-model-api  # This matches what Prometheus expects
+  namespace: loan-default
+  labels:
+    app: loan-metrics-api
+spec:
+  selector:
+    app: loan-metrics-api  # This matches your pod's label
+  ports:
+  - name: metrics
+    port: 8080           # Prometheus expects this port
+    targetPort: 8002     # Your pod's actual port
+    protocol: TCP
+  type: ClusterIP

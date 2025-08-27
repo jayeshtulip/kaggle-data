@@ -1,0 +1,143 @@
+# File: prometheus-ab-alert-rules.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-ab-alert-rules
+  namespace: loan-default
+data:
+  ab-testing-rules.yml: |
+    groups:
+    - name: ab_testing_performance
+      interval: 30s
+      rules:
+      
+      # Control Model Performance Drop - GitHub Actions Trigger
+      - alert: ControlModelAccuracyDrop
+        expr: control_model_accuracy < 0.65
+        for: 2m
+        labels:
+          severity: critical
+          model_variant: control
+          alert_type: performance_degradation
+          trigger_github: "true"
+          github_workflow: "control-model-retrain"
+        annotations:
+          summary: "Control model accuracy dropped below 65% threshold"
+          description: "Control model accuracy is {{ $value | humanizePercentage }}, triggering GitHub Actions workflow"
+          github_repo: "your-username/your-repo-name"
+          github_workflow_file: "retrain-control-model.yml"
+          github_ref: "main"
+          
+      # Treatment Model Performance Drop - GitHub Actions Trigger  
+      - alert: TreatmentModelAccuracyDrop
+        expr: treatment_model_accuracy < 0.65
+        for: 2m
+        labels:
+          severity: critical
+          model_variant: treatment
+          alert_type: performance_degradation
+          trigger_github: "true"
+          github_workflow: "treatment-model-retrain"
+        annotations:
+          summary: "Treatment model accuracy dropped below 65% threshold"
+          description: "Treatment model accuracy is {{ $value | humanizePercentage }}, triggering GitHub Actions workflow"
+          github_repo: "your-username/your-repo-name"
+          github_workflow_file: "retrain-treatment-model.yml"
+          github_ref: "main"
+
+      # General Model Performance Drop (any model below 65%)
+      - alert: ModelPerformanceBelow65
+        expr: loan_model_accuracy < 0.65
+        for: 2m
+        labels:
+          severity: critical
+          alert_type: performance_degradation
+          trigger_github: "true"
+          github_workflow: "emergency-model-retrain"
+        annotations:
+          summary: "Model performance below 65%: {{ $value | humanizePercentage }}"
+          description: "Model {{ $labels.model }} accuracy dropped to {{ $value | humanizePercentage }}, immediate retraining required"
+          github_repo: "your-username/your-repo-name" 
+          github_workflow_file: "emergency-retrain.yml"
+          github_ref: "main"
+
+      # A/B Test Statistical Significance
+      - alert: ABTestStatisticalSignificance
+        expr: abs(treatment_conversion_rate - control_conversion_rate) > 0.02
+        for: 10m
+        labels:
+          severity: info
+          alert_type: statistical_significance
+        annotations:
+          summary: "A/B test shows statistical significance"
+          description: "Difference between treatment and control: {{ $value | humanizePercentage }}"
+
+      # Model Drift Detection
+      - alert: ModelDriftDetected
+        expr: model_drift_score > 0.15
+        for: 5m
+        labels:
+          severity: warning
+          alert_type: drift_alert
+          trigger_github: "true"
+          github_workflow: "model-drift-analysis"
+        annotations:
+          summary: "Data drift detected in A/B models"
+          description: "Drift score: {{ $value }}, consider model retraining"
+          github_repo: "your-username/your-repo-name"
+          github_workflow_file: "analyze-model-drift.yml"
+          github_ref: "main"
+
+      # High Error Rate Alert
+      - alert: HighErrorRate
+        expr: rate(loan_prediction_errors_total[5m]) / rate(loan_prediction_requests_total[5m]) > 0.10
+        for: 3m
+        labels:
+          severity: critical
+          alert_type: error_rate
+          trigger_github: "true"
+          github_workflow: "investigate-errors"
+        annotations:
+          summary: "High error rate detected: {{ $value | humanizePercentage }}"
+          description: "Error rate exceeded 10%, triggering investigation workflow"
+          github_repo: "your-username/your-repo-name"
+          github_workflow_file: "investigate-model-errors.yml"
+          github_ref: "main"
+
+      # Response Time Alert
+      - alert: SlowResponseTime
+        expr: rate(loan_prediction_duration_seconds_sum[5m]) / rate(loan_prediction_duration_seconds_count[5m]) > 1.0
+        for: 5m
+        labels:
+          severity: warning
+          alert_type: performance
+        annotations:
+          summary: "Slow response time: {{ $value }}s"
+          description: "Average response time exceeded 1 second"
+
+      # Traffic Imbalance in A/B Test
+      - alert: ABTestTrafficImbalance
+        expr: abs(rate(loan_prediction_requests_total{model="control"}[10m]) - rate(loan_prediction_requests_total{model="treatment"}[10m])) / rate(loan_prediction_requests_total[10m]) > 0.3
+        for: 5m
+        labels:
+          severity: warning
+          alert_type: traffic_imbalance
+        annotations:
+          summary: "A/B test traffic imbalance detected"
+          description: "Traffic distribution is more than 30% uneven between models"
+
+      # Model Unavailable
+      - alert: ModelUnavailable
+        expr: up{job=~"loan-.*-model"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          alert_type: availability
+          trigger_github: "true"
+          github_workflow: "model-recovery"
+        annotations:
+          summary: "Model {{ $labels.job }} is unavailable"
+          description: "Model endpoint {{ $labels.instance }} is down"
+          github_repo: "your-username/your-repo-name"
+          github_workflow_file: "recover-model.yml"
+          github_ref: "main"

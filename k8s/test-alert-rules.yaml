@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-ab-alert-rules
+  namespace: loan-default
+data:
+  ab-testing-rules.yml: |
+    groups:
+    - name: ab_testing_performance
+      interval: 30s
+      rules:
+      - alert: ModelPerformanceBelow65
+        expr: up{job="loan-model-metrics"} > 0.5
+        for: 10s
+        labels:
+          severity: critical
+          alert_type: performance_degradation
+          trigger_github: "true"
+          github_workflow: "emergency-model-retrain"
+        annotations:
+          summary: "Test: Model performance threshold triggered"
+          description: "Testing alert pipeline with high threshold"
+          github_repo: "your-username/your-repo-name"
+          github_workflow_file: "emergency-retrain.yml"
+          github_ref: "main"
