@@ -10,7 +10,7 @@ data:
       interval: 30s
       rules:
       - alert: ModelPerformanceBelow65
-        expr: up{job="loan-model-metrics"} > 0.5
+        expr: up{job="loan-model-metrics"} < 0.65
         for: 10s
         labels:
           severity: critical
