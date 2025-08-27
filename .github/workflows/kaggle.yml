@@ -17,8 +17,6 @@ on:
         - early_stopping_triggered
         - maintenance
         - emergency_rollback
-  repository_dispatch:
-    types: [model-performance-alert]
       winning_model:
         description: 'Winning model from A/B test'
         required: false
@@ -62,12 +60,10 @@ on:
         required: false
         default: 'data/loan_default_dataset.csv'
         type: string
-
   repository_dispatch:
-    types: [grafana_alert, prometheus_alert, performance_degradation, drift_alert]
-
+    types: [model-performance-alert, grafana_alert, prometheus_alert, performance_degradation, drift_alert]
   schedule:
-    - cron: '0 */6 * * *'  # Every 6 hours for continuous monitoring
+    - cron: '0 */6 * * *'
 
 env:
   AWS_REGION: ap-south-1
