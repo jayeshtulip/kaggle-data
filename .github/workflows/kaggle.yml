@@ -77,7 +77,7 @@ env:
   MLFLOW_TRACKING_URI: http://ad94bec9b84c7498a869d8e30f0f2145-121018640.ap-south-1.elb.amazonaws.com:5000
   # ALERTING ENDPOINTS
   ALERTMANAGER_URL: a17c0255ffa8647239b4bbd8cdda71a4-0cee5bf9e9143e98.elb.ap-south-1.amazonaws.com/alertmanager
-  WEBHOOK_RECEIVER_URL: WEBHOOK_RECEIVER_URL: a17c0255ffa8647239b4bbd8cdda71a4-0cee5bf9e9143e98.elb.ap-south-1.amazonaws.com/prometheus
+  WEBHOOK_RECEIVER_URL: a17c0255ffa8647239b4bbd8cdda71a4-0cee5bf9e9143e98.elb.ap-south-1.amazonaws.com/prometheus
   # EXPERIMENT CONFIGURATION
   MLFLOW_EXPERIMENT_NAME: enhanced-ab-testing-loan-default-kaggle
   DVC_REMOTE_S3: s3://loan-mlops-dvc-bucket/ab-testing-kaggle-data
