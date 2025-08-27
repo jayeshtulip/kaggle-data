@@ -1,3 +1,5 @@
+---
+# ConfigMap containing the webhook code
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -134,8 +136,9 @@ data:
 
     if __name__ == '__main__':
         app.run(host='0.0.0.0', port=8080, debug=False)
-    
+
 ---
+# Deployment with proper environment variable reference (FIXED)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -165,7 +168,10 @@ spec:
         - containerPort: 8080
         env:
         - name: GITHUB_TOKEN
-          value: "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"
+          valueFrom:
+            secretKeyRef:
+              name: github-secrets
+              key: token
         volumeMounts:
         - name: webhook-code
           mountPath: /app
@@ -185,3 +191,19 @@ spec:
       - name: webhook-code
         configMap:
           name: webhook-code
+
+---
+# Service for the webhook receiver
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhook-receiver-service
+  namespace: loan-default
+spec:
+  selector:
+    app: webhook-receiver
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8080
+  type: ClusterIP
