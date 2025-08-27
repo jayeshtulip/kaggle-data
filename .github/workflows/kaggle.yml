@@ -17,6 +17,8 @@ on:
         - early_stopping_triggered
         - maintenance
         - emergency_rollback
+  repository_dispatch:
+    types: [model-performance-alert]
       winning_model:
         description: 'Winning model from A/B test'
         required: false
